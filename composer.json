@@ -1,0 +1,19 @@
+{
+    "name": "mmetayer/extension-installer",
+    "description": "Easily install your Akeneo PIM extensions and connectors",
+    "type": "composer-plugin",
+    "require": {
+        "php": "^7.1",
+        "composer-plugin-api": "^1.1"
+    },
+    "require-dev": {
+        "composer/composer": "^1.4"
+    },
+    "license": "OSL 3.0",
+    "authors": [
+        {
+            "name": "Mathias Métayer",
+            "email": "mathias.metayer@akeneo.com"
+        }
+    ]
+}

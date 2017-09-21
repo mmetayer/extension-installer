@@ -1,0 +1,1 @@
+# Akeneo PIM Extension Installer

@@ -17,7 +17,7 @@ class BundlesConfigurator extends AbstractConfigurator
      */
     public function configure(Recipe $recipe, $bundles): void
     {
-        $this->write('Enabling the package as a Symfony bundle');
+        $this->write('Enabling the extension as a Symfony bundle');
         $file = $this->getConfFile();
         $registered = $this->load($file);
         $classes = $this->parse($bundles, $registered);

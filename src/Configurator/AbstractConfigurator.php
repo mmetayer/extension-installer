@@ -2,6 +2,7 @@
 
 namespace Akeneo\Extensions\Configurator;
 
+use Akeneo\Extensions\Options;
 use Akeneo\Extensions\Recipe;
 use Composer\Composer;
 use Composer\IO\IOInterface;
@@ -19,14 +20,19 @@ abstract class AbstractConfigurator
     /** @var IOInterface */
     protected $io;
 
+    /** @var Options */
+    protected $options;
+
     /**
      * @param Composer $composer
      * @param IOInterface $io
+     * @param Options $options
      */
-    public function __construct(Composer $composer, IOInterface $io)
+    public function __construct(Composer $composer, IOInterface $io, Options $options)
     {
         $this->composer = $composer;
         $this->io = $io;
+        $this->options = $options;
     }
 
     /**

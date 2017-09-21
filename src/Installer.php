@@ -28,6 +28,9 @@ class Installer implements PluginInterface, EventSubscriberInterface
     /** @var  IOInterface */
     private $io;
 
+    /** @var Options */
+    private $options;
+
     /** @var Configurator */
     private $configurator;
 
@@ -44,7 +47,8 @@ class Installer implements PluginInterface, EventSubscriberInterface
     {
         $this->composer = $composer;
         $this->io = $io;
-        $this->configurator = new Configurator($composer, $io);
+        $this->options = $this->initOptions();
+        $this->configurator = new Configurator($composer, $io, $this->options);
         $this->updateOriginalLockHash();
     }
 
@@ -118,5 +122,20 @@ class Installer implements PluginInterface, EventSubscriberInterface
         if ($locker && $locker->isLocked()) {
             $this->originalLockHash = $locker->getLockData()['content-hash'];
         }
+    }
+
+    /**
+     * @return Options
+     */
+    private function initOptions(): Options
+    {
+        $options = array_merge([
+            'bin-dir' => 'bin',
+            'config-dir' => 'app/config',
+            'var-dir' => 'var',
+            'public-dir' => 'public',
+        ], $this->composer->getPackage()->getExtra());
+
+        return new Options($options);
     }
 }

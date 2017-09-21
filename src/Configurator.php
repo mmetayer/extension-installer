@@ -19,6 +19,9 @@ class Configurator
     /** @var IOInterface */
     private $io;
 
+    /** @var Options */
+    private $options;
+
     /** @var array */
     private $configurators;
 
@@ -26,14 +29,15 @@ class Configurator
     private $cache;
 
     /**
-     * Configurator constructor
      * @param Composer $composer
      * @param IOInterface $io
+     * @param Options $options
      */
-    public function __construct(Composer $composer, IOInterface $io)
+    public function __construct(Composer $composer, IOInterface $io, Options $options)
     {
         $this->composer = $composer;
         $this->io = $io;
+        $this->options = $options;
         // ordered list of configurators
         $this->configurators = [
             'bundles' => Configurator\BundlesConfigurator::class,
@@ -70,6 +74,6 @@ class Configurator
 
         $class = $this->configurators[$key];
 
-        return $this->cache[$key] = new $class($this->composer, $this->io);
+        return $this->cache[$key] = new $class($this->composer, $this->io, $this->options);
     }
 }

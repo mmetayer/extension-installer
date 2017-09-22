@@ -38,6 +38,25 @@ class BundlesConfigurator extends AbstractConfigurator
     }
 
     /**
+     * @param Recipe $recipe
+     * @param iterable $bundles
+     */
+    public function unconfigure(Recipe $recipe, $bundles): void
+    {
+        $this->write('Disabling the Symfony bundle');
+        $file = $this->getConfFile();
+        if (!file_exists($file)) {
+            return;
+        }
+
+        $registered = $this->load($file);
+        foreach (array_keys($this->parse($bundles, [])) as $class) {
+            unset($registered[$class]);
+        }
+        $this->dump($file, $registered);
+    }
+
+    /**
      * @param iterable $manifest
      * @param iterable $registered
      * @return iterable

@@ -42,6 +42,12 @@ abstract class AbstractConfigurator
     abstract public function configure(Recipe $recipe, $config): void;
 
     /**
+     * @param Recipe $recipe
+     * @param $config
+     */
+    abstract public function unconfigure(Recipe $recipe, $config): void;
+
+    /**
      * @param string|string[] $messages
      */
     protected function write($messages): void

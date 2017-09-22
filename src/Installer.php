@@ -9,6 +9,7 @@ use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Json\JsonFile;
+use Composer\Package\PackageInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
@@ -58,12 +59,13 @@ class Installer implements PluginInterface, EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            ScriptEvents::PRE_INSTALL_CMD => 'prepare',
-            ScriptEvents::PRE_UPDATE_CMD => 'prepare',
-            PackageEvents::POST_PACKAGE_INSTALL => 'register',
-            PackageEvents::POST_PACKAGE_UPDATE => 'register',
-            ScriptEvents::POST_INSTALL_CMD => 'update',
-            ScriptEvents::POST_UPDATE_CMD => 'update',
+            ScriptEvents::PRE_INSTALL_CMD        => 'prepare',
+            ScriptEvents::PRE_UPDATE_CMD         => 'prepare',
+            PackageEvents::PRE_PACKAGE_UNINSTALL => 'register',
+            PackageEvents::POST_PACKAGE_INSTALL  => 'register',
+            PackageEvents::POST_PACKAGE_UPDATE   => 'register',
+            ScriptEvents::POST_INSTALL_CMD       => 'update',
+            ScriptEvents::POST_UPDATE_CMD        => 'update',
         ];
     }
 
@@ -93,12 +95,32 @@ class Installer implements PluginInterface, EventSubscriberInterface
             return;
         }
 
-        $installPath = $this->composer->getInstallationManager()->getInstallPath($package);
-        if (file_exists($installPath . '/manifest.json')) {
-            $file = new JsonFile($installPath . '/manifest.json');
-            $manifest = $file->read();
-            $this->recipes[] = new Recipe($package, $manifest);
+        $this->io->write(get_class($operation));
+        $this->io->write('operation: ' . $operation->getJobType());
+
+        if (null !== $recipe = $this->getRecipe($package)) {
+            switch ($operation->getJobType()) {
+                case 'install':
+                    $this->recipes[] = $recipe;
+                    break;
+                case 'update':
+                    break;
+                case 'uninstall':
+                    $this->unregister($recipe);
+                    break;
+            }
         }
+    }
+
+    /**
+     * Unconfigures an extension
+     *
+     * @param Recipe $recipe
+     */
+    public function unregister(Recipe $recipe)
+    {
+        $this->io->write(sprintf('  - Unconfiguring %s', $recipe->getPackage()->getName()));
+        $this->configurator->uninstall($recipe);
     }
 
     /**
@@ -116,6 +138,31 @@ class Installer implements PluginInterface, EventSubscriberInterface
         }
     }
 
+    /**
+     * @param PackageInterface $package
+     *
+     * @return Recipe|null
+     */
+    private function getRecipe(PackageInterface $package)
+    {
+        $this->io->write('Trying to fetch recipe for package ' . $package->getName());
+
+        $installPath = $this->composer->getInstallationManager()->getInstallPath($package);
+        if (file_exists($installPath . '/manifest.json')) {
+
+            $this->io->write('Found manifets.json');
+
+            $file = new JsonFile($installPath . '/manifest.json');
+            $manifest = $file->read();
+
+            return new Recipe($package, $manifest);
+        } else {
+            $this->io->write('No manifest.json found');
+        }
+
+        return null;
+    }
+
     private function updateOriginalLockHash(): void
     {
         $locker = $this->composer->getLocker();
@@ -130,9 +177,9 @@ class Installer implements PluginInterface, EventSubscriberInterface
     private function initOptions(): Options
     {
         $options = array_merge([
-            'bin-dir' => 'bin',
+            'bin-dir'    => 'bin',
             'config-dir' => 'app/config',
-            'var-dir' => 'var',
+            'var-dir'    => 'var',
             'public-dir' => 'public',
         ], $this->composer->getPackage()->getExtra());
 

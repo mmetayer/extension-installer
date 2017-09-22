@@ -23,6 +23,17 @@ class CopyFilesConfigurator extends AbstractConfigurator
     }
 
     /**
+     * @param Recipe $recipe
+     * @param $config
+     */
+    public function unconfigure(Recipe $recipe, $config): void
+    {
+        $this->write('Removing configuration and files');
+        $packageDir = $this->composer->getInstallationManager()->getInstallPath($recipe->getPackage());
+        $this->removeFiles($config, $packageDir, getcwd());
+    }
+
+    /**
      * @param iterable $manifest
      * @param string $from
      * @param string $to
@@ -42,6 +53,23 @@ class CopyFilesConfigurator extends AbstractConfigurator
                 if (!file_exists($to . '/' . $target)) {
                     $this->copyFile($from . '/' . $source, $to . '/' . $target);
                 }
+            }
+        }
+    }
+
+    /**
+     * @param iterable $manifest
+     * @param string $from
+     * @param string $to
+     */
+    private function removeFiles(iterable $manifest, string $from, string $to): void
+    {
+        foreach ($manifest as $source => $target) {
+            $target = $this->options->expandTargetDir($target);
+            if ('/' === $source[-1]) {
+                $this->removeFilesFromDir($from . '/' . $source, $to . '/' . $target);
+            } else {
+                @unlink($to . '/' . $target);
             }
         }
     }
@@ -77,6 +105,23 @@ class CopyFilesConfigurator extends AbstractConfigurator
                 }
             } elseif (!file_exists($target . '/' . $iterator->getSubPathName())) {
                 $this->copyFile($item, $target . '/' . $iterator->getSubPathName());
+            }
+        }
+    }
+
+    /**
+     * @param string $source
+     * @param string $target
+     */
+    private function removeFilesFromDir(string $source, string $target): void
+    {
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
+        foreach ($iterator as $item) {
+            if ($item->isDir()) {
+                // that removes the dir only if it is empty
+                @rmdir($target . '/' . $iterator->getSubPathName());
+            } else {
+                @unlink($target . '/' . $iterator->getSubPathName());
             }
         }
     }

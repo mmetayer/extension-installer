@@ -59,6 +59,19 @@ class Configurator
     }
 
     /**
+     * @param Recipe $recipe
+     */
+    public function uninstall(Recipe $recipe): void
+    {
+        $manifest = $recipe->getManifest();
+        foreach (array_keys($this->configurators) as $key) {
+            if (isset($manifest[$key])) {
+                $this->get($key)->unconfigure($recipe, $manifest[$key]);
+            }
+        }
+    }
+
+    /**
      * @param $key
      * @return AbstractConfigurator
      */

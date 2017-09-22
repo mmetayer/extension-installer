@@ -26,4 +26,4 @@ A full example is available [here][2]
 
 # TODO
 - [ ] Add configurators
-- [ ] Handle uninstallation
+- [x] Handle uninstallation

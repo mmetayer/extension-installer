@@ -23,3 +23,7 @@ A full example is available [here][2]
 
 [1]: https://github.com/symfony/flex
 [2]: https://github.com/mmetayer/FakeBundle
+
+# TODO
+- [ ] Add configurators
+- [ ] Handle uninstallation

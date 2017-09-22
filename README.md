@@ -13,7 +13,7 @@ Composer plugin for Akeneo PIM extensions and connectors, largely inspired by [S
 
 The plugin will try to configure every bundle of type "akeneo-extension" installed by composer.
 In order to do that, the extension must have a file named **manifest.json** at its root folder,
-wher the configuration steps are described.
+where the configuration steps are described.
 
 Currently, it only allows two configurators: 
 * ***bundles***: registers the bundle inside the Kernel

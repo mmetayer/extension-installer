@@ -2,6 +2,9 @@
 
 Composer plugin for Akeneo PIM extensions and connectors, largely inspired by [Symfony Flex][1]
 
+## Warning
+As symfony Flex now handles private repos or even recipes downloads from custom URIs (see [https://github.com/symfony/flex/blob/73436bc5c0e3b63f5655552d580b48ad0e17543f/src/Downloader.php#L46-L49], this plugin has lost most of its added value
+
 ### Installation
 
 ```
